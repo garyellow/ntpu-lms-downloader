@@ -6,7 +6,7 @@ from fake_useragent import UserAgent
 
 import secret
 
-max_file_size = 128
+max_file_size = 64
 
 user_data = {
     'account': secret.user_name,
@@ -115,7 +115,8 @@ for semester in semesters:
                             print(attachment_name + ' 已存在')
                         else:
                             print('下載 ' + attachment_name, end='')
-                            open(os.path.join(download_path, attachment_name), 'wb').write(home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
+                            open(os.path.join(download_path, attachment_name), 'wb').write(
+                                home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                             print(' 完成')
 
         hwlist_html = home.get(hwlist_url % class_id, headers={'user-agent': UserAgent().random})
@@ -152,7 +153,7 @@ for semester in semesters:
                     if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
                         print(attachment_name + ' 檔案太大，跳過')
                     else:
-                        download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, hw_name, "作業附件")
+                        download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, '作業', hw_name, "作業附件")
 
                         if not os.path.exists(download_path):
                             os.makedirs(download_path)
@@ -187,7 +188,7 @@ for semester in semesters:
                 if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
                     print(attachment_name + ' 檔案太大，跳過')
                 else:
-                    download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, hw_name, "我的作業")
+                    download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, '作業', hw_name, "我的作業")
 
                     if not os.path.exists(download_path):
                         os.makedirs(download_path)
