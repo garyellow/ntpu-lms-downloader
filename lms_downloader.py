@@ -3,10 +3,13 @@ import os
 import requests
 from bs4 import BeautifulSoup as BS4
 from fake_useragent import UserAgent
+import random
+import time
 
 import secret
 
 max_file_size = 64
+max_sleep_time = 3
 
 user_data = {
     'account': secret.user_name,
@@ -43,12 +46,13 @@ def normalize_str(s):
 
 
 home = requests.Session()
+home.keep_alive = False
+home.adapters.DEFAULT_RETRIES = 10
 home.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
 
 ac_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
 ac_html.encoding = 'utf-8'
 ac_html = check_login(ac_html)
-
 
 all_class = BS4(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
@@ -115,12 +119,14 @@ for semester in semesters:
                             os.makedirs(download_path)
 
                         if os.path.isfile(os.path.join(download_path, attachment_name)):
-                            print(attachment_name + ' 已存在')
+                            print(attachment_name + ' 已下載')
                         else:
                             print('下載 ' + attachment_name, end='')
                             open(os.path.join(download_path, attachment_name), 'wb').write(
                                 home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                             print(' 完成')
+
+                    time.sleep(random.uniform(0, max_sleep_time))
 
         hwlist_html = home.get(hwlist_url % class_id, headers={'user-agent': UserAgent().random})
         hwlist_html.encoding = 'utf-8'
@@ -162,12 +168,14 @@ for semester in semesters:
                             os.makedirs(download_path)
 
                         if os.path.isfile(os.path.join(download_path, attachment_name)):
-                            print(attachment_name + ' 已存在')
+                            print(attachment_name + ' 已下載')
                         else:
                             print('下載 ' + attachment_name, end='')
                             open(os.path.join(download_path, attachment_name), 'wb').write(
                                 home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                             print(' 完成')
+
+                    time.sleep(random.uniform(0, max_sleep_time))
 
             myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
             myself_html = home.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
@@ -197,9 +205,11 @@ for semester in semesters:
                         os.makedirs(download_path)
 
                     if os.path.isfile(os.path.join(download_path, attachment_name)):
-                        print(attachment_name + ' 已存在')
+                        print(attachment_name + ' 已下載')
                     else:
                         print('下載 ' + attachment_name, end='')
                         open(os.path.join(download_path, attachment_name), 'wb').write(
                             home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                         print(' 完成')
+
+                time.sleep(random.uniform(0, max_sleep_time))
