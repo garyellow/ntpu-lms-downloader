@@ -1,14 +1,15 @@
 # ntpu_lms_downloader
 
 ## 主要功能
-爬取並下載國立台北大學數位學苑2.0上的資料
+爬取並下載國立臺北大學數位學苑2.0上的資料
 
 ## 使用方法
 1. 直接[下載](https://github.com/garyellow/ntpu_lms_downloader/archive/refs/heads/master.zip)這個 repo  
 2. 檢查 python 套件版本 `pip install -r requirements.txt` or `pip3 install -r requirements.txt`
 3. 將學號和密碼填入 **secret.py** 中  
     > 注意 secret.py 和 python lms_downloader.py 要放在同一個資料夾
-4. 執行 python 檔 `python lms_downloader.py` or `python3 lms_downloader.py`
+4. 執行 python 檔 `python lms_downloader.py` or `python3 lms_downloader.py`  
+5. ~吃飯睡覺打東東~
 
 ## 簡單說明
 1. 程式會在同一個資料夾下建造一個 **download** 資料夾  
