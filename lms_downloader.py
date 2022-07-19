@@ -33,6 +33,7 @@ def check_login(login_html):
 
         home.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
         login_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
+        login_html.encoding = 'utf-8'
 
     return login_html
 
@@ -48,6 +49,7 @@ ac_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
 ac_html.encoding = 'utf-8'
 ac_html = check_login(ac_html)
 
+
 all_class = BS4(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
@@ -62,7 +64,8 @@ for semester in semesters:
         class_name = class_.text.split(' ')[0]
         class_name = normalize_str(class_name)
         class_id = class_.get('href').split('/')[-1]
-        print('找到課程：%s' % class_name)
+        print(class_name)
+        print('找到課程：' + class_name)
 
         doclist_html = home.get(doclist_url % (class_id, 1), headers={'user-agent': UserAgent().random})
         doclist_html.encoding = 'utf-8'
