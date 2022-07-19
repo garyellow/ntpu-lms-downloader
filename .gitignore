@@ -1,0 +1,5 @@
+*.ini
+/__pycache__
+/build
+/download
+secret.py
