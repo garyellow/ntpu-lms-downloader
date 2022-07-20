@@ -249,5 +249,6 @@ for semester in semesters:
                             print(' 完成')
 
         check_remove(class_path)
+        print('成功下載課程 ' + class_name)
 
 print('所有檔案下載完成')
