@@ -107,7 +107,7 @@ for semester in semesters:
                 temp_path = os.path.join(download_path, temp_file)
                 if os.path.isfile(temp_path):
                     cur_file = '\n'.join(os.listdir(download_path))
-                    with open(temp_path, 'r') as f:
+                    with open(temp_path, 'r', encoding='UTF-8') as f:
                         data = f.read()
                         if cur_file == data:
                             print(doc_name + ' 已下載')
@@ -139,8 +139,8 @@ for semester in semesters:
                     time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
                 if os.path.isdir(download_path):
-                    open(temp_path, 'w')
-                    with open(temp_path, 'w') as f:
+                    open(temp_path, 'w', encoding='UTF-8')
+                    with open(temp_path, 'w', encoding='UTF-8') as f:
                         f.write('\n'.join(os.listdir(download_path)))
 
                 time.sleep(random.uniform(min_sleep_time, max_sleep_time))
@@ -170,7 +170,7 @@ for semester in semesters:
                 temp_path = os.path.join(download_path, temp_file)
                 if os.path.isfile(temp_path):
                     cur_file = '\n'.join(os.listdir(download_path))
-                    with open(temp_path, 'r') as f:
+                    with open(temp_path, 'r', encoding='UTF-8') as f:
                         data = f.read()
                         if cur_file == data:
                             print(hw_name + '作業附件' + ' 已下載')
@@ -203,8 +203,8 @@ for semester in semesters:
                     time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
                 if os.path.isdir(download_path):
-                    open(temp_path, 'w')
-                    with open(temp_path, 'w') as f:
+                    open(temp_path, 'w', encoding='UTF-8')
+                    with open(temp_path, 'w', encoding='UTF-8') as f:
                         f.write('\n'.join(os.listdir(download_path)))
 
             else:
@@ -226,7 +226,7 @@ for semester in semesters:
             temp_path = os.path.join(download_path, temp_file)
             if os.path.isfile(temp_path):
                 cur_file = '\n'.join(os.listdir(download_path))
-                with open(temp_path, 'r') as f:
+                with open(temp_path, 'r', encoding='UTF-8') as f:
                     data = f.read()
                     if cur_file == data:
                         print(hw_name + '我的作業' + ' 已下載')
@@ -259,8 +259,8 @@ for semester in semesters:
                 time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
             if os.path.isdir(download_path):
-                open(temp_path, 'w')
-                with open(temp_path, 'w') as f:
+                open(temp_path, 'w', encoding='UTF-8')
+                with open(temp_path, 'w', encoding='UTF-8') as f:
                     f.write('\n'.join(os.listdir(download_path)))
 
             time.sleep(random.uniform(min_sleep_time, max_sleep_time))
