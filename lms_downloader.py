@@ -10,8 +10,8 @@ from fake_useragent import UserAgent
 import secret
 
 max_file_size = 64
-min_sleep_time = 0.5
-max_sleep_time = 3
+min_sleep_time = 1
+max_sleep_time = 5
 
 user_data = {
     'account': secret.user_name,
@@ -26,6 +26,7 @@ hwlist_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=hwlist'
 hw_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=hw&hw=%s'
 download_url = 'https://lms.ntpu.edu.tw/sys/read_attach.php?id=%s'
 download_dir = 'download'
+temp_file = 'temp.txt'
 
 
 def check_login(login_html):
@@ -55,6 +56,7 @@ home.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
 ac_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
 ac_html.encoding = 'utf-8'
 ac_html = check_login(ac_html)
+print('登入成功')
 
 all_class = Bs(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
@@ -101,8 +103,17 @@ for semester in semesters:
                 if attach is None:
                     continue
 
-                attachments = attach.find_all('div')
+                download_path = os.path.join(download_dir, semester_num, class_name, "上課教材", doc_name)
+                temp_path = os.path.join(download_path, temp_file)
+                if os.path.isfile(temp_path):
+                    cur_file = '\n'.join(os.listdir(download_path))
+                    with open(temp_path, 'r') as f:
+                        data = f.read()
+                        if cur_file == data:
+                            print(doc_name + ' 已下載')
+                            continue
 
+                attachments = attach.find_all('div')
                 for attachment in attachments:
                     attachment_name = attachment.find_all('a')[-1].text
                     attachment_name = normalize_str(attachment_name)
@@ -114,8 +125,6 @@ for semester in semesters:
                     if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
                         print(attachment_name + ' 檔案太大，跳過')
                     else:
-                        download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, "上課教材", doc_name)
-
                         if not os.path.exists(download_path):
                             os.makedirs(download_path)
 
@@ -128,6 +137,13 @@ for semester in semesters:
                             print(' 完成')
 
                     time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
+                if os.path.isdir(download_path):
+                    open(temp_path, 'w')
+                    with open(temp_path, 'w') as f:
+                        f.write('\n'.join(os.listdir(download_path)))
+
+                time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
         hwlist_html = home.get(hwlist_url % class_id, headers={'user-agent': UserAgent().random})
         hwlist_html.encoding = 'utf-8'
@@ -150,6 +166,16 @@ for semester in semesters:
 
             attach = HW.find_all('td', {'class': 'cell col2 bg'})[-1]
             if len(attach.text) != 0:
+                download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, '作業', hw_name, "作業附件")
+                temp_path = os.path.join(download_path, temp_file)
+                if os.path.isfile(temp_path):
+                    cur_file = '\n'.join(os.listdir(download_path))
+                    with open(temp_path, 'r') as f:
+                        data = f.read()
+                        if cur_file == data:
+                            print(hw_name + '作業附件' + ' 已下載')
+                            continue
+
                 attachments = attach.find_all('a')
 
                 for num in range(len(attachments)):
@@ -163,8 +189,6 @@ for semester in semesters:
                     if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
                         print(attachment_name + ' 檔案太大，跳過')
                     else:
-                        download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, '作業', hw_name, "作業附件")
-
                         if not os.path.exists(download_path):
                             os.makedirs(download_path)
 
@@ -178,6 +202,16 @@ for semester in semesters:
 
                     time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
+                if os.path.isdir(download_path):
+                    open(temp_path, 'w')
+                    with open(temp_path, 'w') as f:
+                        f.write('\n'.join(os.listdir(download_path)))
+
+            else:
+                print(hw_name + ' 沒有作業附件')
+
+            time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
             myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
             myself_html = home.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
             myself_html.encoding = 'utf-8'
@@ -185,7 +219,18 @@ for semester in semesters:
 
             attach = me.find('div', {'class': 'block'})
             if attach is None:
+                print(hw_name + ' 沒有繳交作業')
                 continue
+
+            download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, '作業', hw_name, "我的作業")
+            temp_path = os.path.join(download_path, temp_file)
+            if os.path.isfile(temp_path):
+                cur_file = '\n'.join(os.listdir(download_path))
+                with open(temp_path, 'r') as f:
+                    data = f.read()
+                    if cur_file == data:
+                        print(hw_name + '我的作業' + ' 已下載')
+                        continue
 
             attachments = attach.find_all('div')
 
@@ -200,8 +245,6 @@ for semester in semesters:
                 if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
                     print(attachment_name + ' 檔案太大，跳過')
                 else:
-                    download_path = os.path.join(os.getcwd(), download_dir, semester_num, class_name, '作業', hw_name, "我的作業")
-
                     if not os.path.exists(download_path):
                         os.makedirs(download_path)
 
@@ -214,5 +257,12 @@ for semester in semesters:
                         print(' 完成')
 
                 time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
+            if os.path.isdir(download_path):
+                open(temp_path, 'w')
+                with open(temp_path, 'w') as f:
+                    f.write('\n'.join(os.listdir(download_path)))
+
+            time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
 print('所有檔案下載完成')
