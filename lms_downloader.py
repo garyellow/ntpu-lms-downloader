@@ -10,7 +10,7 @@ from fake_useragent import UserAgent
 
 import secret
 
-max_file_size = 64
+max_file_size = 64 * 1024 * 1024
 min_sleep_time = 2
 max_sleep_time = 4
 
@@ -38,8 +38,8 @@ def check_login(login_html):
         user_data['password'] = getpass.getpass('密碼：')
         print()
 
-        home.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
-        login_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
+        login.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
+        login_html = login.get(all_class_url, headers={'user-agent': UserAgent().random})
         login_html.encoding = 'utf-8'
 
     return login_html
@@ -64,12 +64,12 @@ def check_remove(path):
         os.rmdir(path)
 
 
-home = requests.Session()
-home.keep_alive = False
-home.adapters.DEFAULT_RETRIES = 10
-home.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
+login = requests.Session()
+login.keep_alive = False
+login.adapters.DEFAULT_RETRIES = 10
+login.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
 
-ac_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
+ac_html = login.get(all_class_url, headers={'user-agent': UserAgent().random})
 ac_html.encoding = 'utf-8'
 ac_html = check_login(ac_html)
 print('登入成功')
@@ -98,13 +98,13 @@ for semester in semesters:
         class_id = class_.get('href').split('/')[-1]
         print('找到未下載課程：' + class_name)
 
-        doc_list_html = home.get(doc_list_url % (class_id, 1), headers={'user-agent': UserAgent().random})
+        doc_list_html = login.get(doc_list_url % (class_id, 1), headers={'user-agent': UserAgent().random})
         doc_list_html.encoding = 'utf-8'
         doc_list = Bs(doc_list_html.text, 'html.parser')
         page_num = 1 if len(doc_list.find_all('span', {'class': 'item'})) == 0 else len(doc_list.find_all('span', {'class': 'item'}))
 
         for page in range(1, page_num + 1):
-            doc_list_html = home.get(doc_list_url % (class_id, page), headers={'user-agent': UserAgent().random})
+            doc_list_html = login.get(doc_list_url % (class_id, page), headers={'user-agent': UserAgent().random})
             doc_list_html.encoding = 'utf-8'
             doc_list = Bs(doc_list_html.text, 'html.parser')
 
@@ -121,42 +121,44 @@ for semester in semesters:
                 doc_name = normalize_str(doc_name)
                 doc_id = doc.find('a').get('href').split('=')[-1]
 
-                doc_html = home.get(doc_url % (class_id, doc_id), headers={'user-agent': UserAgent().random})
+                doc_html = login.get(doc_url % (class_id, doc_id), headers={'user-agent': UserAgent().random})
                 doc_html.encoding = 'utf-8'
                 DOC = Bs(doc_html.text, 'html.parser')
 
-                attach = DOC.find('div', {'class': 'block'})
-                if attach is None:
-                    continue
-
                 download_path = os.path.join(class_path, "上課教材", doc_name)
 
-                attachments = attach.find_all('div')
+                attachments = DOC.find_all('a', {'target': '_blank'})
+
                 for attachment in attachments:
+                    if "/sys/read_attach.php?id=" not in attachment.get('href') or \
+                            "".join(filter(lambda x: x in string.ascii_letters, attachment.text)) == "":
+                        continue
+
                     time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
-                    attachment_name = attachment.find_all('a')[-1].text
+                    attachment_name = attachment.text
                     attachment_name = normalize_str(attachment_name)
-                    attachment_id = attachment.find_all('a')[-1].get('href').split('=')[-1]
+                    attachment_id = attachment.get('href').split('=')[-1]
 
-                    space_num = "".join(filter(lambda x: x in '0123456789.', attachment.find('span').text))
-                    space_unit = "".join(filter(str.isalpha, attachment.find('span').text))
-
-                    if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
-                        print(attachment_name + ' 檔案太大，跳過')
+                    if os.path.isfile(os.path.join(download_path, attachment_name)):
+                        print(attachment_name + ' 已下載')
                     else:
-                        if not os.path.exists(download_path):
-                            os.makedirs(download_path)
-
-                        if os.path.isfile(os.path.join(download_path, attachment_name)):
-                            print(attachment_name + ' 已下載')
+                        file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
+                        if int(file.headers['Content-Length']) > max_file_size:
+                            print(attachment_name + ' 檔案太大，跳過')
                         else:
+                            if not os.path.exists(download_path):
+                                os.makedirs(download_path)
+
                             print('下載 ' + attachment_name, end='')
-                            open(os.path.join(download_path, attachment_name), 'wb').write(
-                                home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
+                            with open(os.path.join(download_path, attachment_name), 'wb') as f:
+                                for chunk in file.iter_content(chunk_size=1024):
+                                    if chunk:
+                                        f.write(chunk)
+                                        f.flush()
                             print(' 完成')
 
-        hw_list_html = home.get(hw_list_url % class_id, headers={'user-agent': UserAgent().random})
+        hw_list_html = login.get(hw_list_url % class_id, headers={'user-agent': UserAgent().random})
         hw_list_html.encoding = 'utf-8'
         hw_list = Bs(hw_list_html.text, 'html.parser')
 
@@ -172,7 +174,7 @@ for semester in semesters:
                 hw_name = normalize_str(hw_name)
                 hw_id = hw.find('td', {'align': 'left'}).find('a').get('href').split('=')[-1]
 
-                hw_html = home.get(hw_url % (class_id, hw_id), headers={'user-agent': UserAgent().random})
+                hw_html = login.get(hw_url % (class_id, hw_id), headers={'user-agent': UserAgent().random})
                 hw_html.encoding = 'utf-8'
                 HW = Bs(hw_html.text, 'html.parser')
 
@@ -188,28 +190,29 @@ for semester in semesters:
                         attachment_name = normalize_str(attachment_name)
                         attachment_id = attachments[num].get('href').split('=')[-1]
 
-                        space_num = "".join(filter(lambda x: x in '0123456789.', attach.find_all('span')[num].text))
-                        space_unit = "".join(filter(str.isalpha, attach.find_all('span')[num].text))
-
-                        if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
-                            print(attachment_name + ' 檔案太大，跳過')
+                        if os.path.isfile(os.path.join(download_path, attachment_name)):
+                            print(attachment_name + ' 已下載')
                         else:
-                            if not os.path.exists(download_path):
-                                os.makedirs(download_path)
-
-                            if os.path.isfile(os.path.join(download_path, attachment_name)):
-                                print(attachment_name + ' 已下載')
+                            file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
+                            if int(file.headers['Content-Length']) > max_file_size:
+                                print(attachment_name + ' 檔案太大，跳過')
                             else:
+                                if not os.path.exists(download_path):
+                                    os.makedirs(download_path)
+
                                 print('下載 ' + attachment_name, end='')
-                                open(os.path.join(download_path, attachment_name), 'wb').write(
-                                    home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
+                                with open(os.path.join(download_path, attachment_name), 'wb') as f:
+                                    for chunk in file.iter_content(chunk_size=1024):
+                                        if chunk:
+                                            f.write(chunk)
+                                            f.flush()
                                 print(' 完成')
 
                 else:
                     print(hw_name + ' 沒有作業附件')
 
                 myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
-                myself_html = home.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
+                myself_html = login.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
                 myself_html.encoding = 'utf-8'
                 me = Bs(myself_html.text, 'html.parser')
 
@@ -228,21 +231,22 @@ for semester in semesters:
                     attachment_name = normalize_str(attachment_name)
                     attachment_id = attachment.find_all('a')[-1].get('href').split('=')[-1]
 
-                    space_num = "".join(filter(lambda x: x in '0123456789.', attachment.find('span').text))
-                    space_unit = "".join(filter(str.isalpha, attachment.find('span').text))
-
-                    if space_unit == 'GB' or (space_unit == 'MB' and float(space_num) > max_file_size):
-                        print(attachment_name + ' 檔案太大，跳過')
+                    if os.path.isfile(os.path.join(download_path, attachment_name)):
+                        print(attachment_name + ' 已下載')
                     else:
-                        if not os.path.exists(download_path):
-                            os.makedirs(download_path)
-
-                        if os.path.isfile(os.path.join(download_path, attachment_name)):
-                            print(attachment_name + ' 已下載')
+                        file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
+                        if int(file.headers['Content-Length']) > max_file_size:
+                            print(attachment_name + ' 檔案太大，跳過')
                         else:
+                            if not os.path.exists(download_path):
+                                os.makedirs(download_path)
+
                             print('下載 ' + attachment_name, end='')
-                            open(os.path.join(download_path, attachment_name), 'wb').write(
-                                home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
+                            with open(os.path.join(download_path, attachment_name), 'wb') as f:
+                                for chunk in file.iter_content(chunk_size=1024):
+                                    if chunk:
+                                        f.write(chunk)
+                                        f.flush()
                             print(' 完成')
 
         check_remove(class_path)
