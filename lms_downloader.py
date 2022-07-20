@@ -1,3 +1,4 @@
+import getpass
 import os
 import random
 import time
@@ -32,7 +33,7 @@ def check_login(login_html):
         print('登入失敗')
         print('請輸入帳密登入')
         user_data['account'] = input('學號：')
-        user_data['password'] = input('密碼：')
+        user_data['password'] = getpass.getpass('密碼：')
         print()
 
         home.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
@@ -69,7 +70,6 @@ for semester in semesters:
         class_name = class_.text.split(' ')[0]
         class_name = normalize_str(class_name)
         class_id = class_.get('href').split('/')[-1]
-        print(class_name)
         print('找到課程：' + class_name)
 
         doclist_html = home.get(doclist_url % (class_id, 1), headers={'user-agent': UserAgent().random})
@@ -214,3 +214,5 @@ for semester in semesters:
                         print(' 完成')
 
                 time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
+print('所有檔案下載完成')
