@@ -9,7 +9,7 @@
 3. 將學號和密碼填入 **secret.py** 中  
     > 注意 secret.py 和 python lms_downloader.py 要放在同一個資料夾
 4. 執行 python 檔 `python lms_downloader.py` or `python3 lms_downloader.py`  
-5. ~吃飯睡覺打東東~
+5. 耐心等候，~可以先吃飯睡覺打東東，~如果程式停掉了，[下面](https://github.com/garyellow/ntpu_lms_downloader#%E5%85%B6%E4%BB%96)有說要怎麼處理
 
 ## 簡單說明
 1. 程式會在同一個資料夾下建造一個 **download** 資料夾  
@@ -21,9 +21,9 @@
 ## 其他
 * 如果未輸入或輸入錯誤導致登入失敗，程式會再提供輸入區重新輸入    
 * 預設大於 **64MB** 的檔案會跳過，有這個需求的可以自行修改程式碼  
-* 預設每個爬蟲的間隔時間是 0 ~ 3 秒，若常常碰到 Max retries exceeded 的 exception，可以將最大等待秒數調高，比較不會連線逾時
+* 預設每個爬蟲的間隔時間是 0.5 ~ 3 秒，若常常碰到 Max retries exceeded 的 exception，可以將秒數調高，比較不會被系統擋
 * 下載時程式會先檢查該檔案有沒有下載過，檢查到有沒下載過的地方會繼續下載  
     > 所以如果程式因為網路不穩等連線問題停掉，直接關掉重開就好  
-    > 如果來不及下載完也可以直接關掉
+      如果來不及下載完也可以直接關掉
 * 程式有什麼 bug 或想要多什麼功能都可以到 [**issue**](https://github.com/garyellow/ntpu_lms_downloader/issues) 頁面提出  
   也可以 [**fork**](https://github.com/garyellow/ntpu_lms_downloader/fork) 這個 repo 自己修好或新增功能
