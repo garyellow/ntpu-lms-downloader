@@ -1,14 +1,15 @@
 import os
-
-import requests
-from bs4 import BeautifulSoup as BS4
-from fake_useragent import UserAgent
 import random
 import time
+
+import requests
+from bs4 import BeautifulSoup as Bs
+from fake_useragent import UserAgent
 
 import secret
 
 max_file_size = 64
+min_sleep_time = 0.5
 max_sleep_time = 3
 
 user_data = {
@@ -54,7 +55,7 @@ ac_html = home.get(all_class_url, headers={'user-agent': UserAgent().random})
 ac_html.encoding = 'utf-8'
 ac_html = check_login(ac_html)
 
-all_class = BS4(ac_html.text, 'html.parser')
+all_class = Bs(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
 
@@ -73,13 +74,13 @@ for semester in semesters:
 
         doclist_html = home.get(doclist_url % (class_id, 1), headers={'user-agent': UserAgent().random})
         doclist_html.encoding = 'utf-8'
-        doclist = BS4(doclist_html.text, 'html.parser')
+        doclist = Bs(doclist_html.text, 'html.parser')
         page_num = 1 if len(doclist.find_all('span', {'class': 'item'})) == 0 else len(doclist.find_all('span', {'class': 'item'}))
 
         for page in range(1, page_num + 1):
             doclist_html = home.get(doclist_url % (class_id, page), headers={'user-agent': UserAgent().random})
             doclist_html.encoding = 'utf-8'
-            doclist = BS4(doclist_html.text, 'html.parser')
+            doclist = Bs(doclist_html.text, 'html.parser')
 
             docs = doclist.find_all('div', {'class': 'Econtent'})
 
@@ -94,7 +95,7 @@ for semester in semesters:
 
                 doc_html = home.get(doc_url % (class_id, doc_id), headers={'user-agent': UserAgent().random})
                 doc_html.encoding = 'utf-8'
-                DOC = BS4(doc_html.text, 'html.parser')
+                DOC = Bs(doc_html.text, 'html.parser')
 
                 attach = DOC.find('div', {'class': 'block'})
                 if attach is None:
@@ -126,11 +127,11 @@ for semester in semesters:
                                 home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                             print(' 完成')
 
-                    time.sleep(random.uniform(0, max_sleep_time))
+                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
         hwlist_html = home.get(hwlist_url % class_id, headers={'user-agent': UserAgent().random})
         hwlist_html.encoding = 'utf-8'
-        hwlist = BS4(hwlist_html.text, 'html.parser')
+        hwlist = Bs(hwlist_html.text, 'html.parser')
 
         hws = hwlist.find_all('tr', {'onmouseover': 'this.className="rowOver"'})
 
@@ -145,7 +146,7 @@ for semester in semesters:
 
             hw_html = home.get(hw_url % (class_id, hw_id), headers={'user-agent': UserAgent().random})
             hw_html.encoding = 'utf-8'
-            HW = BS4(hw_html.text, 'html.parser')
+            HW = Bs(hw_html.text, 'html.parser')
 
             attach = HW.find_all('td', {'class': 'cell col2 bg'})[-1]
             if len(attach.text) != 0:
@@ -175,12 +176,12 @@ for semester in semesters:
                                 home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                             print(' 完成')
 
-                    time.sleep(random.uniform(0, max_sleep_time))
+                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
             myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
             myself_html = home.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
             myself_html.encoding = 'utf-8'
-            me = BS4(myself_html.text, 'html.parser')
+            me = Bs(myself_html.text, 'html.parser')
 
             attach = me.find('div', {'class': 'block'})
             if attach is None:
@@ -212,4 +213,4 @@ for semester in semesters:
                             home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                         print(' 完成')
 
-                time.sleep(random.uniform(0, max_sleep_time))
+                time.sleep(random.uniform(min_sleep_time, max_sleep_time))
