@@ -8,7 +8,7 @@
 2. 解壓縮後用**命令提示字元**(windows)或**終端機**(mac, linux)進入該資料夾
 3. 輸入 `pip install -r requirements.txt` or `pip3 install -r requirements.txt` 檢查 python 套件版本
 4. 將學號和密碼填入 **secret.py** 中 (非必要，但有填就能不用每次都打帳密)
-5. 執行 python 檔 `python lms_downloader.py` or `python3 lms_downloader.py`
+5. 輸入 `python lms_downloader.py` or `python3 lms_downloader.py` 執行 python 檔
 6. 耐心等候，~可以先吃飯睡覺打東東~，如果程式停掉了，[下面](#%E5%85%B6%E4%BB%96)有說要怎麼處理
 
 ## 簡單說明
