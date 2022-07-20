@@ -9,7 +9,7 @@
 3. 將學號和密碼填入 **secret.py** 中  
     > 注意 secret.py 和 python lms_downloader.py 要放在同一個資料夾
 4. 執行 python 檔 `python lms_downloader.py` or `python3 lms_downloader.py`  
-5. 耐心等候，~可以先吃飯睡覺打東東，~如果程式停掉了，[下面](https://github.com/garyellow/ntpu_lms_downloader#%E5%85%B6%E4%BB%96)有說要怎麼處理
+5. 耐心等候，~可以先吃飯睡覺打東東~，如果程式停掉了，[下面](#%E5%85%B6%E4%BB%96)有說要怎麼處理
 
 ## 簡單說明
 1. 程式會在同一個資料夾下建造一個 **download** 資料夾  
