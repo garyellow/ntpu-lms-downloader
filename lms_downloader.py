@@ -10,7 +10,7 @@ from fake_useragent import UserAgent
 
 import secret
 
-max_file_size = 64 * 1024 * 1024
+max_file_size = 32 * 1024 * 1024
 min_sleep_time = 2
 max_sleep_time = 4
 
@@ -152,7 +152,7 @@ for semester in semesters:
 
                             print('下載 ' + attachment_name, end='')
                             with open(os.path.join(download_path, attachment_name), 'wb') as f:
-                                for chunk in file.iter_content(chunk_size=1024):
+                                for chunk in file.iter_content(chunk_size=512):
                                     if chunk:
                                         f.write(chunk)
                                         f.flush()
@@ -202,7 +202,7 @@ for semester in semesters:
 
                                 print('下載 ' + attachment_name, end='')
                                 with open(os.path.join(download_path, attachment_name), 'wb') as f:
-                                    for chunk in file.iter_content(chunk_size=1024):
+                                    for chunk in file.iter_content(chunk_size=512):
                                         if chunk:
                                             f.write(chunk)
                                             f.flush()
@@ -243,7 +243,7 @@ for semester in semesters:
 
                             print('下載 ' + attachment_name, end='')
                             with open(os.path.join(download_path, attachment_name), 'wb') as f:
-                                for chunk in file.iter_content(chunk_size=1024):
+                                for chunk in file.iter_content(chunk_size=512):
                                     if chunk:
                                         f.write(chunk)
                                         f.flush()
