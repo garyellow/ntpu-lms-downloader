@@ -21,9 +21,9 @@ user_data = {
 
 login_url = 'https://lms.ntpu.edu.tw/sys/lib/ajax/login_submit.php'
 all_class_url = 'https://lms.ntpu.edu.tw/home.php?f=allcourse'
-doclist_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=doclist&order=&precedence=DESC&page=%d'
+doc_list_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=doclist&order=&precedence=DESC&page=%d'
 doc_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=doc&cid=%s'
-hwlist_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=hwlist'
+hw_list_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=hwlist'
 hw_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=hw&hw=%s'
 download_url = 'https://lms.ntpu.edu.tw/sys/read_attach.php?id=%s'
 download_dir = 'download'
@@ -83,7 +83,7 @@ for semester in semesters:
     semester_num = semester_num[0:3] + '-' + semester_num[-1]
     semester_path = os.path.join(download_dir, semester_num)
 
-    print('開始下載%s學年度第%s學期的檔案' % (semester_num[0:3], semester_num[-1]))
+    print('開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
     classes = semester.find_all('a', {'class': 'link'})
     for class_ in classes:
         time.sleep(random.uniform(min_sleep_time, max_sleep_time))
@@ -92,23 +92,23 @@ for semester in semesters:
         class_name = normalize_str(class_name)
         class_path = os.path.join(semester_path, class_name)
         if check_create(class_path):
-            print('已下載過 %s 的資料' % class_name)
+            print('已下載過 %s 的檔案' % class_name)
             continue
 
         class_id = class_.get('href').split('/')[-1]
-        print('找到課程：' + class_name)
+        print('找到未下載課程：' + class_name)
 
-        doclist_html = home.get(doclist_url % (class_id, 1), headers={'user-agent': UserAgent().random})
-        doclist_html.encoding = 'utf-8'
-        doclist = Bs(doclist_html.text, 'html.parser')
-        page_num = 1 if len(doclist.find_all('span', {'class': 'item'})) == 0 else len(doclist.find_all('span', {'class': 'item'}))
+        doc_list_html = home.get(doc_list_url % (class_id, 1), headers={'user-agent': UserAgent().random})
+        doc_list_html.encoding = 'utf-8'
+        doc_list = Bs(doc_list_html.text, 'html.parser')
+        page_num = 1 if len(doc_list.find_all('span', {'class': 'item'})) == 0 else len(doc_list.find_all('span', {'class': 'item'}))
 
         for page in range(1, page_num + 1):
-            doclist_html = home.get(doclist_url % (class_id, page), headers={'user-agent': UserAgent().random})
-            doclist_html.encoding = 'utf-8'
-            doclist = Bs(doclist_html.text, 'html.parser')
+            doc_list_html = home.get(doc_list_url % (class_id, page), headers={'user-agent': UserAgent().random})
+            doc_list_html.encoding = 'utf-8'
+            doc_list = Bs(doc_list_html.text, 'html.parser')
 
-            docs = doclist.find_all('div', {'class': 'Econtent'})
+            docs = doc_list.find_all('div', {'class': 'Econtent'})
 
             if len(docs) == 0:
                 print(class_name + '沒有任何上課教材')
@@ -130,7 +130,6 @@ for semester in semesters:
                     continue
 
                 download_path = os.path.join(class_path, "上課教材", doc_name)
-                temp_path = os.path.join(download_path, temp_file)
 
                 attachments = attach.find_all('div')
                 for attachment in attachments:
@@ -157,11 +156,11 @@ for semester in semesters:
                                 home.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}).content)
                             print(' 完成')
 
-        hwlist_html = home.get(hwlist_url % class_id, headers={'user-agent': UserAgent().random})
-        hwlist_html.encoding = 'utf-8'
-        hwlist = Bs(hwlist_html.text, 'html.parser')
+        hw_list_html = home.get(hw_list_url % class_id, headers={'user-agent': UserAgent().random})
+        hw_list_html.encoding = 'utf-8'
+        hw_list = Bs(hw_list_html.text, 'html.parser')
 
-        hws = hwlist.find_all('tr', {'onmouseover': 'this.className="rowOver"'})
+        hws = hw_list.find_all('tr', {'onmouseover': 'this.className="rowOver"'})
 
         if len(hws) == 0:
             print(class_name + '沒有任何作業')
@@ -180,7 +179,6 @@ for semester in semesters:
                 attach = HW.find_all('td', {'class': 'cell col2 bg'})[-1]
                 if len(attach.text) != 0:
                     download_path = os.path.join(class_path, '作業檔案', hw_name, "作業附件")
-                    temp_path = os.path.join(download_path, temp_file)
 
                     attachments = attach.find_all('a')
                     for num in range(len(attachments)):
@@ -221,7 +219,6 @@ for semester in semesters:
                     continue
 
                 download_path = os.path.join(class_path, '作業檔案', hw_name, "我的作業")
-                temp_path = os.path.join(download_path, temp_file)
 
                 attachments = attach.find_all('div')
                 for attachment in attachments:
@@ -249,6 +246,6 @@ for semester in semesters:
                             print(' 完成')
 
         check_remove(class_path)
-        print('成功下載課程 ' + class_name)
+        print('成功下載 ' + class_name + ' 的檔案')
 
 print('所有檔案下載完成')
