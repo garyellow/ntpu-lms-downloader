@@ -10,8 +10,8 @@ from fake_useragent import UserAgent
 import secret
 
 max_file_size = 64
-min_sleep_time = 1
-max_sleep_time = 5
+min_sleep_time = 2
+max_sleep_time = 4
 
 user_data = {
     'account': secret.user_name,
