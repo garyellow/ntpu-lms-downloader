@@ -105,7 +105,7 @@ semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
 
 while True:
-    target = input('\n請輸入要下載的課程關鍵字，中英皆可，若未輸入會依序下載所有課程\n>> ')
+    target = input('\n請輸入要下載的課程關鍵字，中英皆可，若未輸入會下載所有課程\n>> ')
 
     for semester in semesters:
         semester_num = semester.find('div', {'style': 'float:left'}).text
@@ -261,5 +261,5 @@ while True:
             check_remove(class_path)
             print('成功下載 ' + class_name + ' 的資料\n')
 
-    if input('\n下載結束，是否要繼續下載？(Y/n)：') in 'nN':
+    if input('\n下載結束，是否要繼續下載？(Y/n)：') in ['n', 'N']:
         break
