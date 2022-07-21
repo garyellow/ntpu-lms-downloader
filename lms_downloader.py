@@ -86,14 +86,14 @@ for semester in semesters:
     print('開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
     classes = semester.find_all('a', {'class': 'link'})
     for class_ in classes:
-        time.sleep(random.uniform(min_sleep_time, max_sleep_time))
-
         class_name = class_.text.split(' ')[0]
         class_name = normalize_str(class_name)
         class_path = os.path.join(semester_path, class_name)
         if check_create(class_path):
             print('已下載過 %s 的檔案' % class_name)
             continue
+
+        time.sleep(random.uniform(min_sleep_time, max_sleep_time))
 
         class_id = class_.get('href').split('/')[-1]
         print('找到未下載課程：' + class_name)
@@ -134,29 +134,30 @@ for semester in semesters:
                             "".join(filter(lambda x: x in string.ascii_letters, attachment.text)) == "":
                         continue
 
-                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
-
                     attachment_name = attachment.text
                     attachment_name = normalize_str(attachment_name)
                     attachment_id = attachment.get('href').split('=')[-1]
 
                     if os.path.isfile(os.path.join(download_path, attachment_name)):
                         print(attachment_name + ' 已下載')
-                    else:
-                        file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
-                        if int(file.headers['Content-Length']) > max_file_size:
-                            print(attachment_name + ' 檔案太大，跳過')
-                        else:
-                            if not os.path.exists(download_path):
-                                os.makedirs(download_path)
+                        continue
 
-                            print('下載 ' + attachment_name, end='')
-                            with open(os.path.join(download_path, attachment_name), 'wb') as f:
-                                for chunk in file.iter_content(chunk_size=512):
-                                    if chunk:
-                                        f.write(chunk)
-                                        f.flush()
-                            print(' 完成')
+                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
+                    file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
+                    if int(file.headers['Content-Length']) > max_file_size:
+                        print(attachment_name + ' 檔案太大，跳過')
+                    else:
+                        if not os.path.exists(download_path):
+                            os.makedirs(download_path)
+
+                        print('下載 ' + attachment_name, end='')
+                        with open(os.path.join(download_path, attachment_name), 'wb') as f:
+                            for chunk in file.iter_content(chunk_size=512):
+                                if chunk:
+                                    f.write(chunk)
+                                    f.flush()
+                        print(' 完成')
 
         hw_list_html = login.get(hw_list_url % class_id, headers={'user-agent': UserAgent().random})
         hw_list_html.encoding = 'utf-8'
@@ -179,37 +180,38 @@ for semester in semesters:
                 HW = Bs(hw_html.text, 'html.parser')
 
                 attach = HW.find_all('td', {'class': 'cell col2 bg'})[-1]
-                if len(attach.text) != 0:
-                    download_path = os.path.join(class_path, '作業檔案', hw_name, "作業附件")
-
-                    attachments = attach.find_all('a')
-                    for num in range(len(attachments)):
-                        time.sleep(random.uniform(min_sleep_time, max_sleep_time))
-
-                        attachment_name = attachments[num].text
-                        attachment_name = normalize_str(attachment_name)
-                        attachment_id = attachments[num].get('href').split('=')[-1]
-
-                        if os.path.isfile(os.path.join(download_path, attachment_name)):
-                            print(attachment_name + ' 已下載')
-                        else:
-                            file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
-                            if int(file.headers['Content-Length']) > max_file_size:
-                                print(attachment_name + ' 檔案太大，跳過')
-                            else:
-                                if not os.path.exists(download_path):
-                                    os.makedirs(download_path)
-
-                                print('下載 ' + attachment_name, end='')
-                                with open(os.path.join(download_path, attachment_name), 'wb') as f:
-                                    for chunk in file.iter_content(chunk_size=512):
-                                        if chunk:
-                                            f.write(chunk)
-                                            f.flush()
-                                print(' 完成')
-
-                else:
+                if len(attach.text) == 0:
                     print(hw_name + ' 沒有作業附件')
+                    continue
+
+                download_path = os.path.join(class_path, '作業檔案', hw_name, "作業附件")
+
+                attachments = attach.find_all('a')
+                for num in range(len(attachments)):
+                    attachment_name = attachments[num].text
+                    attachment_name = normalize_str(attachment_name)
+                    attachment_id = attachments[num].get('href').split('=')[-1]
+
+                    if os.path.isfile(os.path.join(download_path, attachment_name)):
+                        print(attachment_name + ' 已下載')
+                        continue
+
+                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
+                    file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
+                    if int(file.headers['Content-Length']) > max_file_size:
+                        print(attachment_name + ' 檔案太大，跳過')
+                    else:
+                        if not os.path.exists(download_path):
+                            os.makedirs(download_path)
+
+                        print('下載 ' + attachment_name, end='')
+                        with open(os.path.join(download_path, attachment_name), 'wb') as f:
+                            for chunk in file.iter_content(chunk_size=512):
+                                if chunk:
+                                    f.write(chunk)
+                                    f.flush()
+                        print(' 完成')
 
                 myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
                 myself_html = login.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
@@ -225,31 +227,32 @@ for semester in semesters:
 
                 attachments = attach.find_all('div')
                 for attachment in attachments:
-                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
-
                     attachment_name = attachment.find_all('a')[-1].text
                     attachment_name = normalize_str(attachment_name)
                     attachment_id = attachment.find_all('a')[-1].get('href').split('=')[-1]
 
                     if os.path.isfile(os.path.join(download_path, attachment_name)):
                         print(attachment_name + ' 已下載')
-                    else:
-                        file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
-                        if int(file.headers['Content-Length']) > max_file_size:
-                            print(attachment_name + ' 檔案太大，跳過')
-                        else:
-                            if not os.path.exists(download_path):
-                                os.makedirs(download_path)
+                        continue
 
-                            print('下載 ' + attachment_name, end='')
-                            with open(os.path.join(download_path, attachment_name), 'wb') as f:
-                                for chunk in file.iter_content(chunk_size=512):
-                                    if chunk:
-                                        f.write(chunk)
-                                        f.flush()
-                            print(' 完成')
+                    time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
+                    file = login.get(download_url % attachment_id, headers={'user-agent': UserAgent().random}, stream=True)
+                    if int(file.headers['Content-Length']) > max_file_size:
+                        print(attachment_name + ' 檔案太大，跳過')
+                    else:
+                        if not os.path.exists(download_path):
+                            os.makedirs(download_path)
+
+                        print('下載 ' + attachment_name, end='')
+                        with open(os.path.join(download_path, attachment_name), 'wb') as f:
+                            for chunk in file.iter_content(chunk_size=512):
+                                if chunk:
+                                    f.write(chunk)
+                                    f.flush()
+                        print(' 完成')
 
         check_remove(class_path)
-        print('成功下載 ' + class_name + ' 的檔案')
+        print('成功下載 ' + class_name + ' 的檔案\n')
 
 print('所有檔案下載完成')
