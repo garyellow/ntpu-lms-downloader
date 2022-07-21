@@ -156,19 +156,23 @@ for semester in semesters:
                     attachments = DOC.find_all('a')
 
                     for attachment in attachments:
-                        if attachment.text.strip(string.digits + '.') == "":
+                        if attachment.text.strip(string.digits + '.') == "" or attachment.get('href') is None:
                             continue
 
                         if not attachment['href'].startswith('/sys/'):
                             if attachment['href'].startswith('https://www.youtube.com/'):
-                                os.makedirs(download_path, exist_ok=True)
-                                with open(os.path.join(download_path, youtube_file), 'a') as f:
-                                    f.write(attachment['href'] + '\n')
+                                youtube_path = os.path.join(download_path, youtube_file)
+                                if not os.path.isfile(youtube_path) or attachment['href'] + '\n' not in open(youtube_path, 'r').readlines():
+                                    os.makedirs(download_path, exist_ok=True)
+                                    with open(youtube_path, 'a') as f:
+                                        f.write(attachment['href'] + '\n')
                             elif attachment['href'].startswith('http') and '.ntpu.edu.tw' not in attachment['href'] and \
                                     attachment['href'] != 'http://www.powercam.com.tw/':
-                                os.makedirs(download_path, exist_ok=True)
-                                with open(os.path.join(download_path, other_file), 'a') as f:
-                                    f.write(attachment['href'] + '\n')
+                                other_path = os.path.join(download_path, other_file)
+                                if not os.path.isfile(other_path) or attachment['href'] + '\n' not in open(other_path, 'r').readlines():
+                                    os.makedirs(download_path, exist_ok=True)
+                                    with open(other_path, 'a') as f:
+                                        f.write(attachment['href'] + '\n')
                             continue
 
                         attachment_name = attachment.text
