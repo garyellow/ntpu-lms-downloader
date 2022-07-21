@@ -11,15 +11,20 @@ from fake_useragent import UserAgent
 
 import secret
 
+# 最大檔案大小(byte)
 max_file_size = 32 * 1024 * 1024
+
+# 爬蟲延遲時間(秒)
 min_sleep_time = 3
 max_sleep_time = 5
 
+# 建立登入資料
 user_data = {
     'account': secret.user_name,
     'password': secret.user_password,
 }
 
+# 預設網址及路徑
 login_url = 'https://lms.ntpu.edu.tw/sys/lib/ajax/login_submit.php'
 all_class_url = 'https://lms.ntpu.edu.tw/home.php?f=allcourse'
 doc_list_url = 'https://lms.ntpu.edu.tw/course.php?courseID=%s&f=doclist&order=&precedence=DESC&page=%d'
@@ -70,8 +75,7 @@ def download_file(url, path, name):
         if int(r.headers['Content-Length']) > max_file_size:
             print(name + ' 檔案太大，跳過')
         else:
-            if not os.path.exists(path):
-                os.makedirs(path)
+            os.makedirs(path, exist_ok=True)
 
             print('下載 ' + name, end='')
             with open(os.path.join(path, name), 'wb') as f:
@@ -81,6 +85,7 @@ def download_file(url, path, name):
 
 def wait():
     time.sleep(random.uniform(min_sleep_time, max_sleep_time))
+
 
 login = requests.Session()
 login.keep_alive = False
@@ -101,7 +106,7 @@ for semester in semesters:
     semester_num = semester_num[0:3] + '-' + semester_num[-1]
     semester_path = os.path.join(download_dir, semester_num)
 
-    print('開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
+    print('\n開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
     classes = semester.find_all('a', {'class': 'link'})
     for class_ in classes:
         class_name = class_.text.split(' ')[0]
@@ -114,7 +119,7 @@ for semester in semesters:
         wait()
 
         class_id = class_.get('href').split('/')[-1]
-        print('找到未下載課程：' + class_name)
+        print('\n找到未下載課程：' + class_name)
 
         doc_list_html = login.get(doc_list_url % (class_id, 1), headers={'user-agent': UserAgent().random})
         doc_list_html.encoding = 'utf-8'
