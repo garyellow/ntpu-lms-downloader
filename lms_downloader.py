@@ -106,6 +106,7 @@ for semester in semesters:
     semester_num = semester_num[0:3] + '-' + semester_num[-1]
     semester_path = os.path.join(download_dir, semester_num)
 
+    time.sleep(min_sleep_time)
     print('\n開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
     classes = semester.find_all('a', {'class': 'link'})
     for class_ in classes:
@@ -114,10 +115,9 @@ for semester in semesters:
         class_path = os.path.join(semester_path, class_name)
         if check_create(class_path):
             print('已下載過 %s 的檔案' % class_name)
-            time.sleep(0.3)
             continue
 
-        class_id = class_.get('href').split('/')[-1]
+        class_id = class_['href'].split('/')[-1]
         print('\n找到未下載課程：' + class_name)
 
         wait()
@@ -141,7 +141,7 @@ for semester in semesters:
             for doc in docs:
                 doc_name = doc.find('a').text
                 doc_name = normalize_str(doc_name)
-                doc_id = doc.find('a').get('href').split('=')[-1]
+                doc_id = doc.find('a')['href'].split('=')[-1]
 
                 wait()
                 doc_html = login.get(doc_url % (class_id, doc_id), headers={'user-agent': UserAgent().random})
@@ -158,7 +158,7 @@ for semester in semesters:
 
                     attachment_name = attachment.text
                     attachment_name = normalize_str(attachment_name)
-                    attachment_id = attachment.get('href').split('=')[-1]
+                    attachment_id = attachment['href'].split('=')[-1]
 
                     if os.path.isfile(os.path.join(download_path, attachment_name)):
                         print(attachment_name + ' 已下載')
@@ -180,7 +180,7 @@ for semester in semesters:
             for hw in hws:
                 hw_name = hw.find('td', {'align': 'left'}).find('a').text
                 hw_name = normalize_str(hw_name)
-                hw_id = hw.find('td', {'align': 'left'}).find('a').get('href').split('=')[-1]
+                hw_id = hw.find('td', {'align': 'left'}).find('a')['href'].split('=')[-1]
 
                 wait()
                 hw_html = login.get(hw_url % (class_id, hw_id), headers={'user-agent': UserAgent().random})
@@ -198,7 +198,7 @@ for semester in semesters:
                 for num in range(len(attachments)):
                     attachment_name = attachments[num].text
                     attachment_name = normalize_str(attachment_name)
-                    attachment_id = attachments[num].get('href').split('=')[-1]
+                    attachment_id = attachments[num]['href'].split('=')[-1]
 
                     if os.path.isfile(os.path.join(download_path, attachment_name)):
                         print(attachment_name + ' 已下載')
@@ -207,7 +207,7 @@ for semester in semesters:
                     wait()
                     download_file(download_url % attachment_id, download_path, attachment_name)
 
-                myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
+                myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1]['href'].split('=')[-1]
 
                 wait()
                 myself_html = login.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
@@ -225,7 +225,7 @@ for semester in semesters:
                 for attachment in attachments:
                     attachment_name = attachment.find_all('a')[-1].text
                     attachment_name = normalize_str(attachment_name)
-                    attachment_id = attachment.find_all('a')[-1].get('href').split('=')[-1]
+                    attachment_id = attachment.find_all('a')[-1]['href'].split('=')[-1]
 
                     if os.path.isfile(os.path.join(download_path, attachment_name)):
                         print(attachment_name + ' 已下載')
