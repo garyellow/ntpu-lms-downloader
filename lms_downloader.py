@@ -15,8 +15,8 @@ import secret
 max_file_size = 32 * 1024 * 1024
 
 # 爬蟲延遲時間(秒)
-min_sleep_time = 3
-max_sleep_time = 5
+min_sleep_time = 2
+max_sleep_time = 4
 
 # 建立登入資料
 user_data = {
@@ -114,13 +114,13 @@ for semester in semesters:
         class_path = os.path.join(semester_path, class_name)
         if check_create(class_path):
             print('已下載過 %s 的檔案' % class_name)
+            time.sleep(0.3)
             continue
-
-        wait()
 
         class_id = class_.get('href').split('/')[-1]
         print('\n找到未下載課程：' + class_name)
 
+        wait()
         doc_list_html = login.get(doc_list_url % (class_id, 1), headers={'user-agent': UserAgent().random})
         doc_list_html.encoding = 'utf-8'
         doc_list = Bs(doc_list_html.text, 'html.parser')
@@ -128,7 +128,6 @@ for semester in semesters:
 
         for page in range(1, page_num + 1):
             wait()
-
             doc_list_html = login.get(doc_list_url % (class_id, page), headers={'user-agent': UserAgent().random})
             doc_list_html.encoding = 'utf-8'
             doc_list = Bs(doc_list_html.text, 'html.parser')
@@ -136,16 +135,15 @@ for semester in semesters:
             docs = doc_list.find_all('div', {'class': 'Econtent'})
 
             if len(docs) == 0:
-                print(class_name + '沒有任何上課教材')
+                print(class_name + ' 沒有任何上課教材')
                 break
 
             for doc in docs:
-                wait()
-
                 doc_name = doc.find('a').text
                 doc_name = normalize_str(doc_name)
                 doc_id = doc.find('a').get('href').split('=')[-1]
 
+                wait()
                 doc_html = login.get(doc_url % (class_id, doc_id), headers={'user-agent': UserAgent().random})
                 doc_html.encoding = 'utf-8'
                 DOC = Bs(doc_html.text, 'html.parser')
@@ -155,8 +153,7 @@ for semester in semesters:
                 attachments = DOC.find_all('a', {'target': '_blank'})
 
                 for attachment in attachments:
-                    if "/sys/read_attach.php?id=" not in attachment.get('href') or \
-                            "".join(filter(lambda x: x in string.ascii_letters, attachment.text)) == "":
+                    if not attachment['href'].startswith('/sys/') or attachment.text.strip(string.digits + '.') == "":
                         continue
 
                     attachment_name = attachment.text
@@ -170,6 +167,7 @@ for semester in semesters:
                     wait()
                     download_file(download_url % attachment_id, download_path, attachment_name)
 
+        wait()
         hw_list_html = login.get(hw_list_url % class_id, headers={'user-agent': UserAgent().random})
         hw_list_html.encoding = 'utf-8'
         hw_list = Bs(hw_list_html.text, 'html.parser')
@@ -177,15 +175,14 @@ for semester in semesters:
         hws = hw_list.find_all('tr', {'onmouseover': 'this.className="rowOver"'})
 
         if len(hws) == 0:
-            print(class_name + '沒有任何作業')
+            print(class_name + ' 沒有任何作業')
         else:
             for hw in hws:
-                wait()
-
                 hw_name = hw.find('td', {'align': 'left'}).find('a').text
                 hw_name = normalize_str(hw_name)
                 hw_id = hw.find('td', {'align': 'left'}).find('a').get('href').split('=')[-1]
 
+                wait()
                 hw_html = login.get(hw_url % (class_id, hw_id), headers={'user-agent': UserAgent().random})
                 hw_html.encoding = 'utf-8'
                 HW = Bs(hw_html.text, 'html.parser')
@@ -211,6 +208,8 @@ for semester in semesters:
                     download_file(download_url % attachment_id, download_path, attachment_name)
 
                 myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1].get('href').split('=')[-1]
+
+                wait()
                 myself_html = login.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
                 myself_html.encoding = 'utf-8'
                 me = Bs(myself_html.text, 'html.parser')
