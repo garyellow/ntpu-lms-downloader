@@ -7,7 +7,7 @@ import time
 
 import requests
 from bs4 import BeautifulSoup as Bs
-from fake_useragent import UserAgent
+from fake_useragent import UserAgent as Ua
 
 import secret
 
@@ -40,15 +40,15 @@ temp_file = 'temp.txt'
 
 # 確認是否成功登入
 def check_login(login_html):
-    while login_html.text.find('權限不足') != -1:
+    while '權限不足' in login_html.text:
         print('登入失敗')
         print('請輸入帳密登入')
         user_data['account'] = input('學號：')
         user_data['password'] = getpass.getpass('密碼：')
         print()
 
-        login.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
-        login_html = login.get(all_class_url, headers={'user-agent': UserAgent().random})
+        login.post(login_url, headers={'user-agent': Ua().random}, data=user_data)
+        login_html = login.get(all_class_url, headers={'user-agent': Ua().random})
         login_html.encoding = 'utf-8'
 
     return login_html
@@ -79,7 +79,7 @@ def check_remove(path):
 # 下載檔案
 def download_file(url, path, name):
     wait()
-    with login.get(url, headers={'user-agent': UserAgent().random}, stream=True) as r:
+    with login.get(url, headers={'user-agent': Ua().random}, stream=True) as r:
         if int(r.headers['Content-Length']) > max_file_size:
             print(name + ' 檔案太大，跳過')
         else:
@@ -99,9 +99,9 @@ def wait():
 login = requests.Session()
 login.keep_alive = False
 login.adapters.DEFAULT_RETRIES = 10
-login.post(login_url, headers={'user-agent': UserAgent().random}, data=user_data)
+login.post(login_url, headers={'user-agent': Ua().random}, data=user_data)
 
-ac_html = login.get(all_class_url, headers={'user-agent': UserAgent().random})
+ac_html = login.get(all_class_url, headers={'user-agent': Ua().random})
 ac_html.encoding = 'utf-8'
 ac_html = check_login(ac_html)
 print('登入成功')
@@ -142,7 +142,7 @@ while True:
 
             # 搜尋上課教材
             wait()
-            with login.get(doc_list_url % (class_id, 1), headers={'user-agent': UserAgent().random}) as doc_list_html:
+            with login.get(doc_list_url % (class_id, 1), headers={'user-agent': Ua().random}) as doc_list_html:
                 doc_list_html.encoding = 'utf-8'
                 doc_list = Bs(doc_list_html.text, 'html.parser')
                 page_num = 1 if len(doc_list.find_all('span', {'class': 'item'})) == 0 else len(doc_list.find_all('span', {'class': 'item'}))
@@ -150,7 +150,7 @@ while True:
                 # 遍歷每一頁
                 for page in range(1, page_num + 1):
                     wait()
-                    doc_list_html = login.get(doc_list_url % (class_id, page), headers={'user-agent': UserAgent().random})
+                    doc_list_html = login.get(doc_list_url % (class_id, page), headers={'user-agent': Ua().random})
                     doc_list_html.encoding = 'utf-8'
                     doc_list = Bs(doc_list_html.text, 'html.parser')
 
@@ -167,7 +167,7 @@ while True:
                         doc_id = doc.find('a')['href'].split('=')[-1]
 
                         wait()
-                        doc_html = login.get(doc_url % (class_id, doc_id), headers={'user-agent': UserAgent().random})
+                        doc_html = login.get(doc_url % (class_id, doc_id), headers={'user-agent': Ua().random})
                         doc_html.encoding = 'utf-8'
                         DOC = Bs(doc_html.text, 'html.parser')
 
@@ -211,7 +211,7 @@ while True:
 
             # 搜尋作業
             wait()
-            with login.get(hw_list_url % class_id, headers={'user-agent': UserAgent().random}) as hw_list_html:
+            with login.get(hw_list_url % class_id, headers={'user-agent': Ua().random}) as hw_list_html:
                 hw_list_html.encoding = 'utf-8'
                 hw_list = Bs(hw_list_html.text, 'html.parser')
 
@@ -227,7 +227,7 @@ while True:
                         hw_id = hw.find('td', {'align': 'left'}).find('a')['href'].split('=')[-1]
 
                         wait()
-                        hw_html = login.get(hw_url % (class_id, hw_id), headers={'user-agent': UserAgent().random})
+                        hw_html = login.get(hw_url % (class_id, hw_id), headers={'user-agent': Ua().random})
                         hw_html.encoding = 'utf-8'
                         HW = Bs(hw_html.text, 'html.parser')
 
@@ -254,7 +254,7 @@ while True:
                         myself_id = HW.find('span', {'class': 'toolWrapper'}).find_all('a')[-1]['href'].split('=')[-1]
 
                         wait()
-                        myself_html = login.get(doc_url % (class_id, myself_id), headers={'user-agent': UserAgent().random})
+                        myself_html = login.get(doc_url % (class_id, myself_id), headers={'user-agent': Ua().random})
                         myself_html.encoding = 'utf-8'
                         me = Bs(myself_html.text, 'html.parser')
 
