@@ -113,6 +113,7 @@ semesters.reverse()
 while True:
     # 輸入課程關鍵字
     target = input('\n請輸入要下載的課程關鍵字，中英皆可，若未輸入會下載所有課程\n>> ')
+    print()
 
     # 搜尋每個學期的課程
     for semester in semesters:
@@ -121,7 +122,7 @@ while True:
         semester_path = os.path.join(download_dir, semester_num)
 
         if len(target) == 0:
-            print('\n開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
+            print('開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
 
         # 搜尋每個課程
         classes = semester.find_all('a', {'class': 'link'})
