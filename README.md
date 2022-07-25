@@ -36,10 +36,10 @@
 
 ## 其他
 * 內文的部分因為每個老師的習慣不同，不太好爬取，就不存了
-* 課程資料夾名稱預設是中文，程式剛開始會詢問要中文還是英文
+* 課程資料夾名稱預設是中文，程式剛開始會詢問要不要換成英文
 * 預設大於 **32MB** 的檔案會跳過，有下載大檔案需求的可以再自行修改程式碼
 * 下載前程式會先檢查有沒有下載過，沒下載過的才會繼續下載
 * 如果要重新下載某課程的檔案，可以刪掉該課程的資料夾
     > 刪掉其他裡面的資料夾或資料都是**不會**觸發重新下載的
-* 程式有什麼 bug 或想要多什麼功能都可以到 [**issue**](https://github.com/garyellow/ntpu_lms_downloader/issues) 頁面提出  
-  也可以 [**fork**](https://github.com/garyellow/ntpu_lms_downloader/fork) 這個 repo 自己修好或新增功能
+* 程式有什麼 bug 或想要多什麼功能可以到 [**issue**](https://github.com/garyellow/ntpu_lms_downloader/issues) 頁面提出，或用任何方式聯繫我  
+  當然也可以 [**fork**](https://github.com/garyellow/ntpu_lms_downloader/fork) 這個 repo 自己修好或新增功能
