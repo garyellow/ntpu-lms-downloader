@@ -15,7 +15,7 @@ import secret
 max_file_size = 32 * 1024 * 1024
 
 # 爬蟲延遲時間(秒)
-min_sleep_time = 2
+min_sleep_time = 2.5
 max_sleep_time = 4
 
 # 建立登入資料
@@ -38,6 +38,10 @@ other_file = 'other.txt'
 temp_file = 'temp.txt'
 
 
+# 英文關鍵字
+en_keyword = ['1', '英文', '英', 'English', 'english', 'En', 'en']
+
+
 # 確認是否成功登入
 def check_login(login_html):
     while '權限不足' in login_html.text:
@@ -56,7 +60,7 @@ def check_login(login_html):
 
 # 字串正規化，用來確保檔案路徑合法
 def normalize_str(s):
-    return "".join(filter(lambda x: x not in string.whitespace, "".join(filter(lambda x: x not in '\\/:*?"<>|', s)).replace(' ', '_')))
+    return "".join(filter(lambda x: x not in '\\/:*?"<>|' + string.whitespace, s))
 
 
 # 檢查是否還需下載，順便建立檔案來表示下載中
@@ -110,9 +114,11 @@ all_class = Bs(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
 
+language = 1 if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else 0
+
 while True:
     # 輸入課程關鍵字
-    target = input('\n請輸入要下載的課程關鍵字，中英皆可，若未輸入會下載所有課程\n>> ')
+    target = input('\n請輸入要下載的課程名稱或教授姓名(關鍵字即可)\n>> ')
     print()
 
     # 搜尋每個學期的課程
@@ -125,12 +131,15 @@ while True:
             print('開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
 
         # 搜尋每個課程
-        classes = semester.find_all('a', {'class': 'link'})
+        classes = semester.find_all('tr', {'onmouseover': 'this.className="postRowOver"'})
         for class_ in classes:
-            if target not in class_.text:
+            # 若課程名稱或教授姓名中不包含關鍵字則跳過
+            if target not in class_.find('a', {'class': 'link'}).text + ' ' + class_.find('div', {'title': '0'}).text:
                 continue
 
-            class_name = class_.text.split(' ')[0]
+            cur_class = class_.find('a', {'class': 'link'})
+
+            class_name = cur_class.text.split(' ')[language]
             class_name = normalize_str(class_name)
             class_path = os.path.join(semester_path, class_name)
             if check_create(class_path):
@@ -138,7 +147,7 @@ while True:
                 time.sleep(random.uniform(min_sleep_time, max_sleep_time) / 6)
                 continue
 
-            class_id = class_['href'].split('/')[-1]
+            class_id = cur_class['href'].split('/')[-1]
             print('\n找到未下載課程：' + class_name)
 
             # 搜尋上課教材
