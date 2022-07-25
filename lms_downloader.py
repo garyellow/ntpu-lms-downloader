@@ -38,10 +38,6 @@ other_file = 'other.txt'
 temp_file = 'temp.txt'
 
 
-# 英文關鍵字
-en_keyword = ['1', '英文', '英', 'English', 'english', 'En', 'en']
-
-
 # 確認是否成功登入
 def check_login(login_html):
     while '權限不足' in login_html.text:
@@ -119,7 +115,7 @@ all_class = Bs(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
 
-language = 1 if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else 0
+language = 1 if input('\n是否將課程資料夾語言設為英文(y/N)\n>> ') in ['y', 'Y', 'yes', 'Yes'] else 0
 
 while True:
     # 輸入關鍵字
@@ -296,5 +292,5 @@ while True:
             check_remove(class_path)
             print('成功下載 ' + class_name + ' 的資料\n')
 
-    if input('\n下載結束，是否要繼續下載？(Y/n)：') in ['n', 'N']:
+    if input('\n下載結束，是否要繼續下載？(Y/n)：') in ['n', 'N', 'no', 'No']:
         break
