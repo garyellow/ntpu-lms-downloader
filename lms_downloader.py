@@ -292,5 +292,5 @@ while True:
             check_remove(class_path)
             print('成功下載 ' + class_name + ' 的資料\n')
 
-    if input('\n下載結束，是否要繼續下載？(Y/n)：') in ['n', 'N', 'no', 'No']:
+    if input('\n下載完成，是否要繼續下載？(Y/n)：') in ['n', 'N', 'no', 'No']:
         break
