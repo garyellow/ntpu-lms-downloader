@@ -139,8 +139,7 @@ while True:
 
             cur_class = class_.find('a', {'class': 'link'})
 
-            class_name = cur_class.text.split(' ')[language]
-            class_name = normalize_str(class_name)
+            class_name = ' '.join(cur_class.text.split()[language:]) if language else cur_class.text.split()[language]
             class_path = os.path.join(semester_path, class_name)
             if check_create(class_path):
                 print('已下載過 %s 的檔案' % class_name)
