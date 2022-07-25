@@ -119,7 +119,7 @@ all_class = Bs(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
 
-language = '1:' if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else ':1'
+language = 1 if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else 0
 
 while True:
     # 輸入關鍵字
