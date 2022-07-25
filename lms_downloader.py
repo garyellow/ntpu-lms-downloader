@@ -114,7 +114,7 @@ all_class = Bs(ac_html.text, 'html.parser')
 semesters = all_class.find_all('div', {'style': 'padding-bottom:20px'})
 semesters.reverse()
 
-language = 1 if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else 0
+language = '1:' if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else ':1'
 
 while True:
     # 輸入關鍵字
@@ -139,7 +139,8 @@ while True:
 
             cur_class = class_.find('a', {'class': 'link'})
 
-            class_name = ' '.join(cur_class.text.split()[language:]) if language else cur_class.text.split()[language]
+            class_name = cur_class.text.split(' ')[language]
+            class_name = normalize_str(class_name)
             class_path = os.path.join(semester_path, class_name)
             if check_create(class_path):
                 print('已下載過 %s 的檔案' % class_name)
