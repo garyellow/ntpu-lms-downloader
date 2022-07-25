@@ -117,7 +117,7 @@ semesters.reverse()
 language = 1 if input('\n設定課程資料夾語言\n中文(0) 英文(1)\n>> ') in en_keyword else 0
 
 while True:
-    # 輸入課程關鍵字
+    # 輸入關鍵字
     target = input('\n請輸入要下載的課程名稱或教授姓名(關鍵字即可)\n>> ')
     print()
 
@@ -128,7 +128,7 @@ while True:
         semester_path = os.path.join(download_dir, semester_num)
 
         if len(target) == 0:
-            print('開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
+            print('\n開始搜尋%s學年度第%s學期的課程' % (semester_num[0:3], semester_num[-1]))
 
         # 搜尋每個課程
         classes = semester.find_all('tr', {'onmouseover': 'this.className="postRowOver"'})
@@ -181,13 +181,13 @@ while True:
                         doc_html.encoding = 'utf-8'
                         DOC = Bs(doc_html.text, 'html.parser')
 
-                        download_path = os.path.join(class_path, "上課教材", doc_name)
+                        download_path = os.path.join(class_path, '上課教材', doc_name)
 
                         attachments = DOC.find_all('a')
 
                         # 搜尋某上課教材的每個附件
                         for attachment in attachments:
-                            if attachment.text.strip(string.digits + '.') == "" or attachment.get('href') is None:
+                            if len(attachment.text.strip(string.digits + '.')) == 0 or attachment.get('href') is None:
                                 continue
 
                             # 把網址分類，非檔案會進到裡面
@@ -246,7 +246,7 @@ while True:
                             print(hw_name + ' 沒有作業附件')
                             continue
 
-                        download_path = os.path.join(class_path, '作業檔案', hw_name, "作業附件")
+                        download_path = os.path.join(class_path, '作業檔案', hw_name, '作業附件')
 
                         # 搜尋某作業的每個附件
                         attachments = attach.find_all('a')
@@ -273,7 +273,7 @@ while True:
                             print(hw_name + ' 沒有繳交作業')
                             continue
 
-                        download_path = os.path.join(class_path, '作業檔案', hw_name, "我的作業")
+                        download_path = os.path.join(class_path, '作業檔案', hw_name, '我的作業')
 
                         # 搜尋某作業中的繳交檔案
                         attachments = attach.find_all('div')
