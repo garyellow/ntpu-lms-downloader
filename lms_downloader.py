@@ -58,9 +58,14 @@ def check_login(login_html):
     return login_html
 
 
-# 字串正規化，用來確保檔案路徑合法
-def normalize_str(s):
-    return "".join(filter(lambda x: x not in '\\/:*?"<>|' + string.whitespace, s))
+# 字串正規化，用來確保路徑合法
+def normalize_dir(s):
+    return "".join(filter(lambda x: x not in r'\/:*?"<>|', s))
+
+
+# 字串正規化，用來使檔案名稱好看一點
+def normalize_file(s):
+    return "".join(filter(lambda x: x not in string.whitespace, normalize_dir(s)))
 
 
 # 檢查是否還需下載，順便建立檔案來表示下載中
@@ -140,6 +145,7 @@ while True:
             cur_class = class_.find('a', {'class': 'link'})
 
             class_name = ' '.join(cur_class.text.split()[language:]) if language else cur_class.text.split()[language]
+            class_name = normalize_dir(class_name)
             class_path = os.path.join(semester_path, class_name)
             if check_create(class_path):
                 print('已下載過 %s 的檔案' % class_name)
@@ -172,7 +178,7 @@ while True:
                     # 搜尋每個上課教材
                     for doc in docs:
                         doc_name = doc.find('a').text
-                        doc_name = normalize_str(doc_name)
+                        doc_name = normalize_file(doc_name)
                         doc_id = doc.find('a')['href'].split('=')[-1]
 
                         wait()
@@ -209,7 +215,7 @@ while True:
                                 continue
 
                             attachment_name = attachment.text
-                            attachment_name = normalize_str(attachment_name)
+                            attachment_name = normalize_file(attachment_name)
                             attachment_id = attachment['href'].split('=')[-1]
 
                             if os.path.isfile(os.path.join(download_path, attachment_name)):
@@ -232,7 +238,7 @@ while True:
                     # 搜尋每個作業
                     for hw in hws:
                         hw_name = hw.find('td', {'align': 'left'}).find('a').text
-                        hw_name = normalize_str(hw_name)
+                        hw_name = normalize_file(hw_name)
                         hw_id = hw.find('td', {'align': 'left'}).find('a')['href'].split('=')[-1]
 
                         wait()
@@ -251,7 +257,7 @@ while True:
                         attachments = attach.find_all('a')
                         for num in range(len(attachments)):
                             attachment_name = attachments[num].text
-                            attachment_name = normalize_str(attachment_name)
+                            attachment_name = normalize_file(attachment_name)
                             attachment_id = attachments[num]['href'].split('=')[-1]
 
                             if os.path.isfile(os.path.join(download_path, attachment_name)):
@@ -278,7 +284,7 @@ while True:
                         attachments = attach.find_all('div')
                         for attachment in attachments:
                             attachment_name = attachment.find_all('a')[-1].text
-                            attachment_name = normalize_str(attachment_name)
+                            attachment_name = normalize_file(attachment_name)
                             attachment_id = attachment.find_all('a')[-1]['href'].split('=')[-1]
 
                             if os.path.isfile(os.path.join(download_path, attachment_name)):
