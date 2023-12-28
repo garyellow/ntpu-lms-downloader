@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "ntpu-lms-downloader"
+version = "0.1.0"
+description = ""
+authors = ["garyellow <gary20011110@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+beautifulsoup4 = "^4.12.2"
+requests = "^2.31.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
