@@ -84,7 +84,9 @@ def check_remove(path):
 def download_file(url, path, name):
     wait()
     with login.get(url, stream=True) as r:
-        if int(r.headers["Content-Length"]) > max_file_size:
+        if ("Content-Length" not in r.headers):
+            print(path + ' 不包含附件')
+        elif int(r.headers["Content-Length"]) > max_file_size:
             print(name + " 檔案太大，跳過")
         else:
             os.makedirs(path, exist_ok=True)
