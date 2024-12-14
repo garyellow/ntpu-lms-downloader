@@ -84,7 +84,9 @@ def check_remove(path):
 def download_file(url, path, name):
     wait()
     with login.get(url, stream=True) as r:
-        if int(r.headers["Content-Length"]) > max_file_size:
+        if ("Content-Length" not in r.headers):
+            print(path + ' 不包含附件')
+        elif int(r.headers["Content-Length"]) > max_file_size:
             print(name + " 檔案太大，跳過")
         else:
             os.makedirs(path, exist_ok=True)
@@ -290,30 +292,31 @@ while True:
                         attach = HW.find_all("td", {"class": "cell col2 bg"})[-1]
                         if len(attach.text) == 0:
                             print(hw_name + " 沒有作業附件")
-                            continue
-
-                        download_path = os.path.join(
-                            class_path, "作業檔案", hw_name, "作業附件"
-                        )
-
-                        # 搜尋某作業的每個附件
-                        attachments = attach.find_all("a")
-                        for num in range(len(attachments)):
-                            attachment_name = attachments[num].text
-                            attachment_name = normalize_file(attachment_name)
-                            attachment_id = attachments[num]["href"].split("=")[-1]
-
-                            if os.path.isfile(
-                                os.path.join(download_path, attachment_name)
-                            ):
-                                print(attachment_name + " 已下載")
-                                continue
-
-                            download_file(
-                                download_url % attachment_id,
-                                download_path,
-                                attachment_name,
+                        
+                        else:
+                            download_path = os.path.join(
+                                class_path, "作業檔案", hw_name, "作業附件"
                             )
+
+                            # 搜尋某作業的每個附件
+                            attachments = attach.find_all("a")
+                            for num in range(len(attachments)):
+                                attachment_name = attachments[num].text
+                                attachment_name = normalize_file(attachment_name)
+                                attachment_id = attachments[num]["href"].split("=")[-1]
+
+                                if os.path.isfile(
+                                    os.path.join(download_path, attachment_name)
+                                ):
+                                    print(attachment_name + " 已下載")
+                                    continue
+
+                                download_file(
+                                    download_url % attachment_id,
+                                    download_path,
+                                    attachment_name,
+                                )
+
 
                         myself_id = (
                             HW.find("span", {"class": "toolWrapper"})
